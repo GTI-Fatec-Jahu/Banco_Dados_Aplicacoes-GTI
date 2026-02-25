@@ -80,13 +80,13 @@ A nota final é calculada pela fórmula:
 
 > **Nota Final = (T1 + P1 + T2 + P2) × 1 + R**
 
-| Avaliação | Descrição |
-|---|---|
-| **T1** | Atividade Avaliativa: Modelagem conceitual e lógica completa |
-| **P1** | Avaliação Bimestral — todo o conteúdo de Modelagem e DDL |
-| **T2** | Atividade Prática: SQL com Joins, Filtros e Agregações |
-| **P2** | Avaliação Bimestral — DML, DQL e Junções |
-| **R** | Avaliação Substitutiva — recuperação de nota ou conteúdo não fixado |
+| Avaliação | Descrição | Peso |
+|---|---|---|
+| **T1** | Atividade Avaliativa: Modelagem conceitual e lógica completa |2|
+| **P1** | Avaliação Bimestral — todo o conteúdo de Modelagem e DDL |3|
+| **T2** | Atividade Prática: SQL com Joins, Filtros e Agregações |2|
+| **P2** | Avaliação Bimestral — DML, DQL e Junções |3|
+| **R** | Avaliação Substitutiva — recuperação de nota ou conteúdo não fixado |3|
 
 ---
 
