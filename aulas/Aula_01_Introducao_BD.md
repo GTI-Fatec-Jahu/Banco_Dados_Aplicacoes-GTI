@@ -25,8 +25,14 @@ Um **dado** é um fato bruto, sem contexto — por exemplo, o número `1200`. Is
 
 ```mermaid
 flowchart LR
-    A["🔢 Dado\n(Fato bruto)\nEx: 1200"] --> B["📊 Informação\n(Dado com contexto)\nEx: Salário = R$1200"]
-    B --> C["🧠 Conhecimento\n(Informação + experiência)\nEx: Padrão salarial da empresa"]
+    A["🔢 Dado
+    (Fato bruto)
+Ex: 1200"] --> B["📊 Informação
+(Dado com contexto)
+Ex: Salário = R$1200"]
+    B --> C["🧠 Conhecimento
+(Informação + experiência)
+Ex: Padrão salarial da empresa"]
 ```
 
 ---
