@@ -18,8 +18,14 @@ O SQL que aprendemos até aqui é **declarativo**: dizemos *o que* queremos, e o
 
 ```mermaid
 flowchart LR
-    SQL["SQL Declarativo\n(o quê)\nSELECT, INSERT, UPDATE"] --> PL["PL/SQL ou SQL Procedural\n(como)\nIF, LOOP, variáveis, tratamento de erros"]
-    PL --> SP["Stored Procedures\nFunctions\nTriggers"]
+    SQL["SQL Declarativo
+(o quê)
+SELECT, INSERT, UPDATE"] --> PL["PL/SQL ou SQL Procedural
+(como)
+IF, LOOP, variáveis, tratamento de erros"]
+    PL --> SP["Stored Procedures
+Functions
+Triggers"]
 ```
 
 Cada SGBD tem sua própria extensão procedural: Oracle usa PL/SQL, SQL Server usa T-SQL, e MySQL/MariaDB usa simplesmente o dialeto procedural do MySQL, que muitos chamam informalmente de PL/SQL também.

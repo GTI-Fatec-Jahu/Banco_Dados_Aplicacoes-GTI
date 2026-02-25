@@ -18,8 +18,11 @@ Um banco relacional bem normalizado distribui os dados em múltiplas tabelas par
 
 ```mermaid
 flowchart LR
-    A["Tabela CLIENTE\n(id_cliente, nome)"] -->|"id_cliente"| C["RESULTADO\n(nome do cliente + detalhes do pedido)"]
-    B["Tabela PEDIDO\n(id_pedido, id_cliente, data)"] -->|"id_cliente"| C
+    A["Tabela CLIENTE
+(id_cliente, nome)"] -->|"id_cliente"| C["RESULTADO
+(nome do cliente + detalhes do pedido)"]
+    B["Tabela PEDIDO
+(id_pedido, id_cliente, data)"] -->|"id_cliente"| C
 ```
 
 ---

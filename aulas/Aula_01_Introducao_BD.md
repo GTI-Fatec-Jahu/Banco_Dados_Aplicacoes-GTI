@@ -25,8 +25,14 @@ Um **dado** é um fato bruto, sem contexto — por exemplo, o número `1200`. Is
 
 ```mermaid
 flowchart LR
-    A["🔢 Dado\n(Fato bruto)\nEx: 1200"] --> B["📊 Informação\n(Dado com contexto)\nEx: Salário = R$1200"]
-    B --> C["🧠 Conhecimento\n(Informação + experiência)\nEx: Padrão salarial da empresa"]
+    A["🔢 Dado
+(Fato bruto)
+Ex: 1200"] --> B["📊 Informação
+(Dado com contexto)
+Ex: Salário = R$1200"]
+    B --> C["🧠 Conhecimento
+(Informação + experiência)
+Ex: Padrão salarial da empresa"]
 ```
 
 ---
@@ -63,16 +69,20 @@ A arquitetura padrão de um SGBD é organizada em três níveis independentes, o
 ```mermaid
 flowchart TB
     subgraph NIVEL1["👤 Nível Externo (Visões)"]
-        U1[Usuário A\nVê só seu departamento]
-        U2[Usuário B\nVê só relatórios financeiros]
+        U1[Usuário A
+Vê só seu departamento]
+        U2[Usuário B
+Vê só relatórios financeiros]
     end
 
     subgraph NIVEL2["🗂️ Nível Conceitual (Esquema Lógico)"]
-        E[Estrutura lógica completa\nTabelas, Relacionamentos, Restrições]
+        E[Estrutura lógica completa
+Tabelas, Relacionamentos, Restrições]
     end
 
     subgraph NIVEL3["💾 Nível Interno (Físico)"]
-        F[Arquivos em disco\nÍndices, Ponteiros, Blocos]
+        F[Arquivos em disco
+Índices, Ponteiros, Blocos]
     end
 
     NIVEL1 --> NIVEL2

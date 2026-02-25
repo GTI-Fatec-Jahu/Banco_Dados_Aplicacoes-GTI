@@ -18,9 +18,13 @@ O `SELECT` é o comando mais poderoso e mais usado da SQL. Ele recupera dados ar
 
 ```mermaid
 flowchart LR
-    SELECT["SELECT\n(quais colunas?)"] --> FROM["FROM\n(qual tabela?)"]
-    FROM --> WHERE["WHERE\n(quais linhas?)"]
-    WHERE --> ORDER["ORDER BY\n(qual ordem?)"]
+    SELECT["SELECT
+(quais colunas?)"] --> FROM["FROM
+(qual tabela?)"]
+    FROM --> WHERE["WHERE
+(quais linhas?)"]
+    WHERE --> ORDER["ORDER BY
+(qual ordem?)"]
 ```
 
 ---
@@ -94,12 +98,19 @@ Algo que confunde muitos iniciantes é que a ordem em que escrevemos a query **n
 
 ```mermaid
 flowchart LR
-    F["1. FROM\nIdentifica as tabelas"] --> W["2. WHERE\nFiltra as linhas"]
-    W --> G["3. GROUP BY\nAgrega os grupos"]
-    G --> H["4. HAVING\nFiltra os grupos"]
-    H --> S["5. SELECT\nProjeta as colunas"]
-    S --> O["6. ORDER BY\nOrdena o resultado"]
-    O --> L["7. LIMIT\nLimita as linhas"]
+    F["1. FROM
+Identifica as tabelas"] --> W["2. WHERE
+Filtra as linhas"]
+    W --> G["3. GROUP BY
+Agrega os grupos"]
+    G --> H["4. HAVING
+Filtra os grupos"]
+    H --> S["5. SELECT
+Projeta as colunas"]
+    S --> O["6. ORDER BY
+Ordena o resultado"]
+    O --> L["7. LIMIT
+Limita as linhas"]
 ```
 
 Entender essa ordem ajuda a evitar erros comuns, como tentar usar um alias definido no `SELECT` dentro do `WHERE` — o que não funciona porque o `WHERE` é executado antes do `SELECT`.

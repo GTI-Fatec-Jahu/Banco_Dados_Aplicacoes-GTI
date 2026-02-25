@@ -18,12 +18,26 @@ A P1 abrange os tópicos estudados nas aulas 1 a 8. Você deve ser capaz de anal
 
 ```mermaid
 flowchart LR
-    A1["Aula 01\nIntrodução\nSGBD"] --> A2["Aula 02\nEntidades\nAtributos"]
-    A2 --> A3["Aula 03\nRelacionamentos\nCardinalidade"]
-    A3 --> A4["Aula 04\nModelo\nLógico"]
-    A4 --> A5["Aula 05\nNormalização\n1FN 2FN 3FN"]
-    A5 --> A7["Aula 07\nDDL\nCREATE TABLE"]
-    A7 --> A8["Aula 08\nConstraints\nPK FK UNIQUE"]
+    A1["Aula 01
+Introdução
+SGBD"] --> A2["Aula 02
+Entidades
+Atributos"]
+    A2 --> A3["Aula 03
+Relacionamentos
+Cardinalidade"]
+    A3 --> A4["Aula 04
+Modelo
+Lógico"]
+    A4 --> A5["Aula 05
+Normalização
+1FN 2FN 3FN"]
+    A5 --> A7["Aula 07
+DDL
+CREATE TABLE"]
+    A7 --> A8["Aula 08
+Constraints
+PK FK UNIQUE"]
     A8 --> P1["📝 P1"]
 ```
 

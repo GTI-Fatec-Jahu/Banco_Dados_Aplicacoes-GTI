@@ -27,9 +27,13 @@ Pense na modelagem como a planta baixa de uma casa: o arquiteto não começa con
 
 ```mermaid
 flowchart LR
-    A["🌍 Mundo Real\n(Negócio, regras, objetos)"] --> B["✏️ Modelagem Conceitual\n(MER — Entidades e Relacionamentos)"]
-    B --> C["📐 Modelo Lógico\n(Tabelas e Chaves)"]
-    C --> D["💾 Modelo Físico\n(SQL — CREATE TABLE)"]
+    A["🌍 Mundo Real
+(Negócio, regras, objetos)"] --> B["✏️ Modelagem Conceitual
+(MER — Entidades e Relacionamentos)"]
+    B --> C["📐 Modelo Lógico
+(Tabelas e Chaves)"]
+    C --> D["💾 Modelo Físico
+(SQL — CREATE TABLE)"]
 ```
 
 O **Modelo Entidade-Relacionamento (MER)**, proposto por Peter Chen em 1976, é o padrão mais utilizado para a modelagem conceitual. Sua representação gráfica é chamada de **Diagrama ER (DER)**.

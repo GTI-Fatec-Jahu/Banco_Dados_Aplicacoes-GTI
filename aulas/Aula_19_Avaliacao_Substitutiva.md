@@ -21,17 +21,26 @@ A avaliação substitutiva pode abordar qualquer conteúdo do semestre: introdu�
 ```mermaid
 flowchart TD
     subgraph BLOCO1["Bloco 1"]
-        B1["Introdução a BD\nSGBD, Arquitetura"]
-        B2["MER\nEntidades, Atributos, Relacionamentos"]
-        B3["Modelo Lógico\nTabelas, PK, FK"]
-        B4["Normalização\n1FN 2FN 3FN"]
-        B5["DDL\nCREATE TABLE, Constraints"]
+        B1["Introdução a BD
+SGBD, Arquitetura"]
+        B2["MER
+Entidades, Atributos, Relacionamentos"]
+        B3["Modelo Lógico
+Tabelas, PK, FK"]
+        B4["Normalização
+1FN 2FN 3FN"]
+        B5["DDL
+CREATE TABLE, Constraints"]
     end
     subgraph BLOCO2["Bloco 2"]
-        C1["DML\nINSERT UPDATE DELETE"]
-        C2["DQL\nSELECT WHERE ORDER BY"]
-        C3["Agregação\nGROUP BY HAVING"]
-        C4["JOINs\nINNER LEFT RIGHT"]
+        C1["DML
+INSERT UPDATE DELETE"]
+        C2["DQL
+SELECT WHERE ORDER BY"]
+        C3["Agregação
+GROUP BY HAVING"]
+        C4["JOINs
+INNER LEFT RIGHT"]
     end
     BLOCO1 --> BLOCO2
     BLOCO2 --> R["🔄 Avaliação Substitutiva"]

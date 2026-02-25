@@ -95,10 +95,17 @@ HAVING AVG(ip.preco_unitario) > 100;
 
 ```mermaid
 flowchart LR
-    FROM["FROM\ntabela"] --> WHERE["WHERE\n(filtra linhas\nantes do agrupamento)"]
-    WHERE --> GROUP["GROUP BY\n(agrupa)"]
-    GROUP --> HAVING["HAVING\n(filtra grupos\napós agrupamento)"]
-    HAVING --> SELECT["SELECT\n(projeta resultado)"]
+    FROM["FROM
+tabela"] --> WHERE["WHERE
+(filtra linhas
+antes do agrupamento)"]
+    WHERE --> GROUP["GROUP BY
+(agrupa)"]
+    GROUP --> HAVING["HAVING
+(filtra grupos
+após agrupamento)"]
+    HAVING --> SELECT["SELECT
+(projeta resultado)"]
 ```
 
 Dica prática: se você consegue escrever a condição sem usar uma função de agregação, use `WHERE`. Se a condição envolve `COUNT`, `SUM`, `AVG` etc., use `HAVING`.

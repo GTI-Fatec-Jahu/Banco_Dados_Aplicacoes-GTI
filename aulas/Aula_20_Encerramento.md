@@ -18,11 +18,20 @@ Ao longo deste semestre passamos por uma jornada completa: começamos entendendo
 
 ```mermaid
 flowchart LR
-    A["🌍 Negócio\ne Requisitos"] --> B["✏️ MER\nModelagem\nConceitual"]
-    B --> C["📐 Lógico\nTabelas PK FK"]
-    C --> D["🏅 Normalização\n1FN 2FN 3FN"]
-    D --> E["💾 DDL\nCREATE TABLE\nConstraints"]
-    E --> F["📊 DML + DQL\nINSERT SELECT\nJOINs Agregações"]
+    A["🌍 Negócio
+e Requisitos"] --> B["✏️ MER
+Modelagem
+Conceitual"]
+    B --> C["📐 Lógico
+Tabelas PK FK"]
+    C --> D["🏅 Normalização
+1FN 2FN 3FN"]
+    D --> E["💾 DDL
+CREATE TABLE
+Constraints"]
+    E --> F["📊 DML + DQL
+INSERT SELECT
+JOINs Agregações"]
     F --> G["🎓 Você aqui!"]
 ```
 

@@ -21,8 +21,14 @@ Na aula anterior construímos o Diagrama ER, que representa o *o quê* do sistem
 
 ```mermaid
 flowchart LR
-    A["✏️ Modelo Conceitual\nDiagrama ER\n(Entidades, Relacionamentos)"] -->|"Mapeamento"| B["📐 Modelo Lógico\nTabelas, PKs, FKs\n(Independente de SGBD)"]
-    B -->|"Implementação"| C["💾 Modelo Físico\nCREATE TABLE em SQL\n(Específico do SGBD)"]
+    A["✏️ Modelo Conceitual
+Diagrama ER
+(Entidades, Relacionamentos)"] -->|"Mapeamento"| B["📐 Modelo Lógico
+Tabelas, PKs, FKs
+(Independente de SGBD)"]
+    B -->|"Implementação"| C["💾 Modelo Físico
+CREATE TABLE em SQL
+(Específico do SGBD)"]
 ```
 
 O modelo lógico ainda é **independente de tecnologia** — não falamos de MySQL, Oracle ou PostgreSQL aqui. Falamos de tabelas, colunas e chaves de forma abstrata. A tecnologia específica entra só no modelo físico.

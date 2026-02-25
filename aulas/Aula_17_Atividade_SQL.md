@@ -18,11 +18,21 @@ Esta aula é dedicada à resolução do **Trabalho 2 (T2)** — a atividade prá
 
 ```mermaid
 flowchart LR
-    DML["DML\nINSERT UPDATE DELETE\nAula 10"] --> DQL["DQL Básica\nSELECT DISTINCT LIMIT\nAula 11"]
-    DQL --> FILT["Filtragem\nWHERE BETWEEN IN LIKE\nAula 12"]
-    FILT --> AGG["Agregação\nGROUP BY HAVING\nAula 13"]
-    AGG --> IJ["INNER JOIN\nAula 14"]
-    IJ --> OJ["OUTER JOIN\nAula 15"]
+    DML["DML
+INSERT UPDATE DELETE
+Aula 10"] --> DQL["DQL Básica
+SELECT DISTINCT LIMIT
+Aula 11"]
+    DQL --> FILT["Filtragem
+WHERE BETWEEN IN LIKE
+Aula 12"]
+    FILT --> AGG["Agregação
+GROUP BY HAVING
+Aula 13"]
+    AGG --> IJ["INNER JOIN
+Aula 14"]
+    IJ --> OJ["OUTER JOIN
+Aula 15"]
     OJ --> T2["✏️ T2"]
 ```
 

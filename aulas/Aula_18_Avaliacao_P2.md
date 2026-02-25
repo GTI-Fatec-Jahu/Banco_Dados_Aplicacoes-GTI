@@ -18,11 +18,17 @@ Para se sair bem na P2, você deve dominar a inserção de dados respeitando a o
 
 ```mermaid
 flowchart LR
-    A10["DML\nINSERT UPDATE DELETE"] --> A11["SELECT\nProjeção Alias DISTINCT"]
-    A11 --> A12["WHERE\nBETWEEN IN LIKE IS NULL"]
-    A12 --> A13["GROUP BY\nFunções HAVING"]
-    A13 --> A14["INNER JOIN\nCorrespondência nos dois lados"]
-    A14 --> A15["LEFT / RIGHT JOIN\nRegistros sem correspondência"]
+    A10["DML
+INSERT UPDATE DELETE"] --> A11["SELECT
+Projeção Alias DISTINCT"]
+    A11 --> A12["WHERE
+BETWEEN IN LIKE IS NULL"]
+    A12 --> A13["GROUP BY
+Funções HAVING"]
+    A13 --> A14["INNER JOIN
+Correspondência nos dois lados"]
+    A14 --> A15["LEFT / RIGHT JOIN
+Registros sem correspondência"]
     A15 --> P2["📝 P2"]
 ```
 

@@ -21,11 +21,21 @@ A **SQL (Structured Query Language)** é a linguagem padrão para interação co
 
 ```mermaid
 flowchart LR
-    SQL["🗃️ SQL"] --> DDL["📐 DDL\nData Definition Language\nCREATE, ALTER, DROP"]
-    SQL --> DML["✏️ DML\nData Manipulation Language\nINSERT, UPDATE, DELETE"]
-    SQL --> DQL["🔍 DQL\nData Query Language\nSELECT"]
-    SQL --> DCL["🔒 DCL\nData Control Language\nGRANT, REVOKE"]
-    SQL --> TCL["🔄 TCL\nTransaction Control Language\nCOMMIT, ROLLBACK"]
+    SQL["🗃️ SQL"] --> DDL["📐 DDL
+Data Definition Language
+CREATE, ALTER, DROP"]
+    SQL --> DML["✏️ DML
+Data Manipulation Language
+INSERT, UPDATE, DELETE"]
+    SQL --> DQL["🔍 DQL
+Data Query Language
+SELECT"]
+    SQL --> DCL["🔒 DCL
+Data Control Language
+GRANT, REVOKE"]
+    SQL --> TCL["🔄 TCL
+Transaction Control Language
+COMMIT, ROLLBACK"]
 ```
 
 Nesta aula focaremos na **DDL**, que é a parte responsável por **definir a estrutura** do banco — criar bancos de dados, tabelas, alterar sua estrutura e excluir objetos.

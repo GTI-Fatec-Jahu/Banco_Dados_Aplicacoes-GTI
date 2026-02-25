@@ -41,7 +41,11 @@ Essa tabela viola a 1FN porque `telefones_cliente` tem múltiplos valores numa c
 
 ```mermaid
 flowchart LR
-    A["❌ Antes da 1FN\nCélulas com listas\ne grupos repetitivos"] --> B["✅ Após a 1FN\nTodos os valores atômicos\nSem grupos repetitivos"]
+    A["❌ Antes da 1FN
+Células com listas
+e grupos repetitivos"] --> B["✅ Após a 1FN
+Todos os valores atômicos
+Sem grupos repetitivos"]
 ```
 
 Após aplicar a 1FN, teríamos tabelas separadas para `PEDIDO`, `TELEFONE_CLIENTE` e `ITEM_PEDIDO`, cada uma com valores simples em cada célula.
@@ -62,9 +66,12 @@ A PK composta é `(id_pedido, id_produto)`. O atributo `quantidade` depende corr
 flowchart TD
     subgraph VIOLACAO["❌ Violação da 2FN"]
         PK["PK: (id_pedido + id_produto)"]
-        PK --> Q["quantidade ✅\n(depende da PK inteira)"]
-        PK --> NP["nome_produto ❌\n(depende só de id_produto)"]
-        PK --> PP["preco_produto ❌\n(depende só de id_produto)"]
+        PK --> Q["quantidade ✅
+(depende da PK inteira)"]
+        PK --> NP["nome_produto ❌
+(depende só de id_produto)"]
+        PK --> PP["preco_produto ❌
+(depende só de id_produto)"]
     end
 ```
 
@@ -84,7 +91,8 @@ Aqui, `nome_depto` e `localizacao_depto` dependem de `id_depto`, que por sua vez
 
 ```mermaid
 flowchart LR
-    A["id_funcionario\n(PK)"] -->|"dependência direta"| B["id_depto"]
+    A["id_funcionario
+(PK)"] -->|"dependência direta"| B["id_depto"]
     A --> C["nome ✅"]
     B -->|"dependência transitiva ❌"| D["nome_depto"]
     B -->|"dependência transitiva ❌"| E["localizacao_depto"]
@@ -98,18 +106,26 @@ A solução é mover `nome_depto` e `localizacao_depto` para uma tabela separada
 
 ```mermaid
 flowchart TD
-    A["Tabela Inicial\n(não normalizada)"] --> B
+    A["Tabela Inicial
+(não normalizada)"] --> B
 
-    B{"Todos os atributos\nsão atômicos?"}
-    B -->|"Não"| B1["🔧 Eliminar grupos repetitivos\nSeparar valores múltiplos"]
+    B{"Todos os atributos
+são atômicos?"}
+    B -->|"Não"| B1["🔧 Eliminar grupos repetitivos
+Separar valores múltiplos"]
     B -->|"Sim"| C["✅ 1FN"]
 
-    C --> D{"Atributos não-chave\ndependem da PK inteira?"}
-    D -->|"Não (dependência parcial)"| D1["🔧 Separar tabela para\nos atributos dependentes parciais"]
+    C --> D{"Atributos não-chave
+dependem da PK inteira?"}
+    D -->|"Não (dependência parcial)"| D1["🔧 Separar tabela para
+os atributos dependentes parciais"]
     D -->|"Sim"| E["✅ 2FN"]
 
-    E --> F{"Atributos não-chave\ndependem de outro\natributo não-chave?"}
-    F -->|"Sim (dependência transitiva)"| F1["🔧 Separar tabela para\nos atributos transitivos"]
+    E --> F{"Atributos não-chave
+dependem de outro
+atributo não-chave?"}
+    F -->|"Sim (dependência transitiva)"| F1["🔧 Separar tabela para
+os atributos transitivos"]
     F -->|"Não"| G["✅ 3FN — Modelo bem normalizado!"]
 ```
 

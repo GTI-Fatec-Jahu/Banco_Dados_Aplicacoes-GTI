@@ -18,9 +18,12 @@ Enquanto a DDL define a **estrutura** do banco, a **DML (Data Manipulation Langu
 
 ```mermaid
 flowchart LR
-    DML["DML"] --> INSERT["INSERT\nAdicionar novos registros"]
-    DML --> UPDATE["UPDATE\nModificar registros existentes"]
-    DML --> DELETE["DELETE\nRemover registros"]
+    DML["DML"] --> INSERT["INSERT
+Adicionar novos registros"]
+    DML --> UPDATE["UPDATE
+Modificar registros existentes"]
+    DML --> DELETE["DELETE
+Remover registros"]
 ```
 
 ---
