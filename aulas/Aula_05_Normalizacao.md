@@ -18,46 +18,6 @@ Ao final desta aula você deverá ser capaz de:
 
 ---
 
-## SUPER IMPORTANTE:Convenções de Nomenclatura desta Disciplina
-
-Antes de escrever uma única linha de SQL, precisamos estabelecer um conjunto de convenções que seguiremos em toda a disciplina. Convenções não são caprichos estéticos — elas são acordos que tornam o código legível, previsível e manutenível por qualquer pessoa do time, inclusive você mesmo daqui a seis meses.
-
-As regras a seguir estão alinhadas com as boas práticas da indústria e serão cobradas nas avaliações.
-
-**Regra 1 — snake_case em tudo:** todas as palavras são separadas por underline, nunca por espaço, hífen ou camelCase. Exemplo: `data_nascimento`, não `DataNascimento` nem `data-nascimento`.
-
-**Regra 2 — Sempre minúsculas para nomes criados pelo usuário:** tabelas, colunas, schemas, aliases — tudo em letras minúsculas. As únicas letras maiúsculas no seu código devem ser as palavras reservadas do SQL.
-
-**Regra 3 — Palavras reservadas em MAIÚSCULAS:** `SELECT`, `CREATE`, `TABLE`, `INSERT`, `WHERE`, `NOT NULL`, `PRIMARY KEY` etc. Isso cria um contraste visual imediato entre o que é linguagem e o que é dado — fundamental para leitura rápida de código.
-
-**Regra 4 — Nomes de tabelas sempre no plural:** a tabela armazena uma coleção de registros, então seu nome deve refletir isso. `clientes`, `pedidos`, `produtos` — nunca `cliente`, `pedido`, `produto`.
-
-**Regra 5 — Chave primária no padrão `id_nome_tabela_singular`:** o nome da PK sempre usa o singular do nome da tabela. Exemplos: tabela `clientes` → PK `id_cliente`; tabela `pedidos` → PK `id_pedido`; tabela `categorias_produtos` → PK `id_categoria_produto`.
-
-**Regra 6 - Chave estrangeira no padrão `tabela_referencia_id`:** o nome da FK preferencialmente usa o nome da tabela na qual se quer referênciar. Exemplo: na tabela `itens_pedidos` a chave estrangeira que referência a tabela `produtos` deve ser `produto_id`.
-
-**Regra 7 — Chave estrangeira pelo papel semântico, não pelo nome da tabela:** este é o ponto mais sutil e importante. Quando uma FK referencia uma tabela cuja entidade pode exercer papéis diferentes, use o papel — não o nome da tabela. Veja o exemplo clássico:
-
-```sql
--- ❌ ERRADO: não use pessoa1_id e pessoa2_id
--- Isso não comunica nada sobre o papel de cada pessoa
-
--- ✅ CORRETO: use o papel semântico de cada um
-CREATE TABLE vendas (
-    id_venda        INT          NOT NULL,
-    cliente_id      INT          NOT NULL,  -- referencia pessoas (papel: cliente)
-    funcionario_id  INT          NOT NULL,  -- referencia pessoas (papel: vendedor)
-    data_venda      DATE         NOT NULL,
-    PRIMARY KEY (id_venda),
-    FOREIGN KEY (cliente_id)     REFERENCES pessoas (id_pessoa),
-    FOREIGN KEY (funcionario_id) REFERENCES pessoas (id_pessoa)
-);
-```
-
-O padrão de nomenclatura de FK neste caso, é, portanto, `papel_id` — onde `papel` descreve o que aquela entidade representa no contexto daquele relacionamento.
-
----
-
 ## 1. O Problema: Quando os Dados Viram uma Bagunça
 
 Antes de entrar em qualquer teoria, vamos experimentar o problema na prática. Imagine que você foi contratado como estagiário numa escola e encontrou a seguinte planilha usada para controlar as notas dos alunos:
