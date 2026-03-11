@@ -49,8 +49,6 @@ O modelo relacional, proposto por Edgar F. Codd em 1970, organiza os dados em **
 
 **Cardinalidade** de uma relação é o número de tuplas (linhas) que ela contém em um dado momento.
 
-[Clean table diagram showing a database table called 'CLIENTE' with column headers highlighted in blue: id_cliente, nome, cpf, email. Three rows of sample data below. Arrows pointing to labels explaining: tupla (row), atributo (column), domínio (cell values). Educational style, clean white background.]
-
 ![Anatomia de uma tabela relacional](../imgs/Aula_04_img_01.png)
 
 ---
@@ -91,7 +89,7 @@ erDiagram
     FUNCIONARIO {
         int id_funcionario PK
         string nome
-        int id_depto FK
+        int departamento_id FK
     }
 ```
 
@@ -111,8 +109,8 @@ erDiagram
         string ra
     }
     MATRICULA {
-        int id_aluno FK
-        int id_disciplina FK
+        int aluno_id FK
+        int disciplina_id FK
         date data_matricula
         float nota
     }
@@ -153,11 +151,11 @@ erDiagram
         int id_pedido PK
         date data_pedido
         string status
-        int id_cliente FK
+        int cliente_id FK
     }
     ITEM_PEDIDO {
-        int id_pedido FK
-        int id_produto FK
+        int pedido_id FK
+        int produto_id FK
         int quantidade
         float preco_unitario
     }
