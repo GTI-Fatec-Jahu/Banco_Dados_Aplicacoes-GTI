@@ -1,4 +1,4 @@
-# Atividades de Estudos 01 — Modelagem de Banco de Dados
+# Atividades de Estudos 02 — Modelagem de Banco de Dados
 
 **Disciplina:** Banco de Dados e Aplicações (IBD951)  
 **Professor:** Ronan Adriel Zenatti · ronan.zenatti@cps.sp.gov.br  
