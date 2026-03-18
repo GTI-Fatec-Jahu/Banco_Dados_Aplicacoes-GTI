@@ -13,9 +13,7 @@ Este arquivo contém **5 exercícios de modelagem** com dificuldade progressiva.
 **Para cada exercício, você deve entregar:**
 
 1. **O link público do diagrama** gerado no dbdiagram.io (`Share → Copy link`)
-2. **Um arquivo `.txt`** contendo o script de criação do banco de dados em SQL, nomeado como `ExXX_NomeCompleto.txt` (exemplo: `Ex01_JoaoSilva.txt`)
-
-O script pode ser escrito manualmente ou exportado pelo dbdiagram.io em `Export → MySQL` — em qualquer caso, revise o SQL gerado para garantir que está correto e completo.
+2. **Um arquivo `.txt`** contendo o script de criação do banco de dados, nomeado como `ExXX_NomeCompleto.txt` (exemplo: `Ex01_JoaoSilva.txt`)
 
 ---
 
