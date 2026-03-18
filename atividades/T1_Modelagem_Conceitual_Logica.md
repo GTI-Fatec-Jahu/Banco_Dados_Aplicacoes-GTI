@@ -7,7 +7,7 @@
 ---
 ## 📌 Objetivos da Aula
 
-Esta é uma **aula de atividade prática** — o conteúdo teórico foi apresentado nas aulas anteriores. Aqui você consolidará os aprendizados das Aulas 01 a 05 desenvolvendo o modelo conceitual e o script DDL de um sistema de streaming integrado. Esta atividade corresponde ao **Trabalho T1** da disciplina e **vale 2,0 pontos** da média final.
+Esta é uma **aula de atividade prática** — o conteúdo teórico foi apresentado nas aulas anteriores. Aqui você consolidará os aprendizados das Aulas 01 a 05 desenvolvendo o modelo conceitual (MER) de um sistema de streaming integrado. Esta atividade corresponde ao **Trabalho T1** da disciplina e **vale 2,0 pontos** da média final.
 
 ---
 
