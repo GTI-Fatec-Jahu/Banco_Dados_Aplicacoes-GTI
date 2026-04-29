@@ -31,8 +31,8 @@ O `LEFT JOIN` retorna **todas** as linhas da tabela à esquerda (`FROM`), e as c
 SELECT
     c.nome,
     COUNT(p.id_pedido) AS total_pedidos
-FROM cliente c
-LEFT JOIN pedido p ON c.id_cliente = p.id_cliente
+FROM clientes c
+LEFT JOIN pedidos p ON c.id_cliente = p.cliente_id
 GROUP BY c.id_cliente, c.nome
 ORDER BY total_pedidos ASC;
 -- Clientes sem pedidos aparecem com total_pedidos = 0
@@ -47,15 +47,15 @@ Uma técnica poderosa é usar `LEFT JOIN` com `WHERE tabela_direita.coluna IS NU
 ```sql
 -- Clientes que NUNCA fizeram pedido
 SELECT c.nome, c.email
-FROM cliente c
-LEFT JOIN pedido p ON c.id_cliente = p.id_cliente
+FROM clientes c
+LEFT JOIN pedidos p ON c.id_cliente = p.cliente_id
 WHERE p.id_pedido IS NULL;
 
 -- Produtos que NUNCA foram vendidos
 SELECT pr.nome, pr.preco, pr.estoque
-FROM produto pr
-LEFT JOIN item_pedido ip ON pr.id_produto = ip.id_produto
-WHERE ip.id_produto IS NULL;
+FROM produtos pr
+LEFT JOIN itens_pedidos ip ON pr.id_produto = ip.produto_id
+WHERE ip.produto_id IS NULL;
 ```
 
 ---
@@ -67,13 +67,13 @@ O `RIGHT JOIN` é o espelho do `LEFT JOIN`: preserva todas as linhas da tabela �
 ```sql
 -- Equivalente: todos os pedidos, mesmo sem cliente cadastrado (teoricamente impossível com FK)
 SELECT c.nome, p.id_pedido, p.data_pedido
-FROM cliente c
-RIGHT JOIN pedido p ON c.id_cliente = p.id_cliente;
+FROM clientes c
+RIGHT JOIN pedidos p ON c.id_cliente = p.cliente_id;
 
 -- Reescrito com LEFT JOIN (mais legível para a maioria)
 SELECT c.nome, p.id_pedido, p.data_pedido
-FROM pedido p
-LEFT JOIN cliente c ON p.id_cliente = c.id_cliente;
+FROM pedidos p
+LEFT JOIN clientes c ON p.cliente_id = c.id_cliente;
 ```
 
 ---

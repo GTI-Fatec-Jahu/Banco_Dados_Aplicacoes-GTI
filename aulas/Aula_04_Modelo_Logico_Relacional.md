@@ -38,15 +38,18 @@ As regras a seguir estão alinhadas com as boas práticas da indústria e serão
 -- ❌ ERRADO: não use pessoa1_id e pessoa2_id
 -- Isso não comunica nada sobre o papel de cada pessoa
 
--- ✅ CORRETO: use o papel semântico de cada um
+-- ✅ CORRETO: use o papel semântico de cada um (e siga TODAS as 9 regras)
 CREATE TABLE vendas (
-    id_venda        INT          NOT NULL,
-    cliente_id      INT          NOT NULL,  -- referencia pessoas (papel: cliente)
-    funcionario_id  INT          NOT NULL,  -- referencia pessoas (papel: vendedor)
-    data_venda      DATE         NOT NULL,
-    PRIMARY KEY (id_venda),
-    FOREIGN KEY (cliente_id)     REFERENCES pessoas (id_pessoa),
-    FOREIGN KEY (funcionario_id) REFERENCES pessoas (id_pessoa)
+    id_venda        BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT,
+    cliente_id      BIGINT UNSIGNED  NOT NULL,                  -- referencia pessoas (papel: cliente)
+    funcionario_id  BIGINT UNSIGNED  NOT NULL,                  -- referencia pessoas (papel: vendedor)
+    data_venda      DATE             NOT NULL,
+    criado_em       DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em   DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deletado_em     DATETIME             NULL,
+    CONSTRAINT pk_venda              PRIMARY KEY (id_venda),
+    CONSTRAINT fk_venda_cliente      FOREIGN KEY (cliente_id)     REFERENCES pessoas (id_pessoa),
+    CONSTRAINT fk_venda_funcionario  FOREIGN KEY (funcionario_id) REFERENCES pessoas (id_pessoa)
 );
 ```
 
@@ -196,12 +199,12 @@ erDiagram
         int pedido_id FK
         int produto_id FK
         int quantidade
-        float preco_unitario
+        decimal preco_unitario
     }
     PRODUTO {
         int id_produto PK
         string nome
-        float preco
+        decimal preco
         int estoque
     }
 ```

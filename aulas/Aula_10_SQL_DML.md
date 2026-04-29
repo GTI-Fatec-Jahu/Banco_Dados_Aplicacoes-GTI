@@ -34,17 +34,17 @@ O `INSERT` adiciona novas linhas a uma tabela. Existem duas sintaxes principais.
 
 ```sql
 -- Sintaxe completa: especificando as colunas (recomendada)
-INSERT INTO cliente (nome, cpf, email)
+INSERT INTO clientes (nome, cpf, email)
 VALUES ('Ana Paula Silva', '12345678901', 'ana@email.com');
 
 -- Inserindo múltiplas linhas de uma vez (mais eficiente)
-INSERT INTO produto (nome, preco, estoque) VALUES
+INSERT INTO produtos (nome, preco, estoque) VALUES
     ('Camiseta Básica',  49.90, 100),
     ('Calça Jeans',     129.90,  50),
     ('Tênis Casual',    199.90,  30);
 ```
 
-A ordem de inserção importa quando há FKs. Você sempre deve inserir primeiro os registros das tabelas referenciadas. Por isso, insira `cliente` antes de `pedido`, e `pedido` antes de `item_pedido`.
+A ordem de inserção importa quando há FKs. Você sempre deve inserir primeiro os registros das tabelas referenciadas. Por isso, insira em `clientes` antes de `pedidos`, e em `pedidos` antes de `itens_pedidos`.
 
 ---
 
@@ -54,18 +54,18 @@ O `UPDATE` modifica os valores de colunas em registros existentes. A cláusula `
 
 ```sql
 -- Atualizar o e-mail de um cliente específico
-UPDATE cliente
+UPDATE clientes
 SET email = 'novoemail@email.com'
 WHERE id_cliente = 1;
 
 -- Atualizar múltiplas colunas ao mesmo tempo
-UPDATE produto
+UPDATE produtos
 SET preco = 59.90,
     estoque = 80
 WHERE id_produto = 1;
 
 -- ⚠️ PERIGO: Sem WHERE atualiza TODOS os registros!
--- UPDATE produto SET preco = 0; -- NUNCA faça isso sem intenção!
+-- UPDATE produtos SET preco = 0; -- NUNCA faça isso sem intenção!
 ```
 
 ---
@@ -76,15 +76,17 @@ O `DELETE` remove linhas de uma tabela. Assim como o `UPDATE`, o `WHERE` é crí
 
 ```sql
 -- Remover um registro específico
-DELETE FROM cliente
+DELETE FROM clientes
 WHERE id_cliente = 5;
 
 -- Remover todos os pedidos cancelados
-DELETE FROM pedido
-WHERE status = 'CANCELADO';
+DELETE FROM pedidos
+WHERE status = 'cancelado';
 ```
 
 Se a tabela tiver registros dependentes via FK com `ON DELETE RESTRICT`, o banco irá bloquear a exclusão. Você precisará remover os registros filhos primeiro, ou usar `ON DELETE CASCADE` (que remove automaticamente os dependentes).
+
+> 💡 **Soft delete com `deletado_em`:** em vez de usar `DELETE`, a boa prática é marcar o registro com `UPDATE pedidos SET deletado_em = NOW() WHERE id_pedido = 5` e filtrar com `WHERE deletado_em IS NULL` nas consultas. Isso preserva o histórico e permite restauração.
 
 ---
 
@@ -92,25 +94,25 @@ Se a tabela tiver registros dependentes via FK com `ON DELETE RESTRICT`, o banco
 
 ```sql
 -- 1. Inserir clientes primeiro (tabela sem dependências)
-INSERT INTO cliente (nome, cpf, email) VALUES
+INSERT INTO clientes (nome, cpf, email) VALUES
     ('Carlos Mendes',  '11122233344', 'carlos@email.com'),
     ('Beatriz Souza',  '55566677788', 'beatriz@email.com');
 
 -- 2. Inserir produtos
-INSERT INTO produto (nome, preco, estoque) VALUES
+INSERT INTO produtos (nome, preco, estoque) VALUES
     ('Notebook', 3499.90, 10),
     ('Mouse USB',   49.90, 50);
 
--- 3. Inserir pedido (depende de cliente)
-INSERT INTO pedido (id_cliente, status) VALUES (1, 'PENDENTE');
+-- 3. Inserir pedido (depende de clientes)
+INSERT INTO pedidos (cliente_id, data_pedido, status) VALUES (1, CURDATE(), 'pendente');
 
--- 4. Inserir itens do pedido (depende de pedido e produto)
-INSERT INTO item_pedido (id_pedido, id_produto, quantidade, preco_unitario) VALUES
+-- 4. Inserir itens do pedido (depende de pedidos e produtos)
+INSERT INTO itens_pedidos (pedido_id, produto_id, quantidade, preco_unitario) VALUES
     (1, 1, 1, 3499.90),
     (1, 2, 2,   49.90);
 
 -- 5. Atualizar status do pedido
-UPDATE pedido SET status = 'CONFIRMADO' WHERE id_pedido = 1;
+UPDATE pedidos SET status = 'confirmado' WHERE id_pedido = 1;
 ```
 
 ---

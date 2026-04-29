@@ -33,17 +33,17 @@ flowchart LR
 
 ```sql
 -- Selecionar todas as colunas de uma tabela
-SELECT * FROM cliente;
+SELECT * FROM clientes;
 
 -- Projeção: selecionar apenas as colunas desejadas
-SELECT nome, email FROM cliente;
+SELECT nome, email FROM clientes;
 
 -- Alias: renomear colunas no resultado
 SELECT
-    nome        AS "Nome do Cliente",
-    email       AS "E-mail",
-    data_nasc   AS "Data de Nascimento"
-FROM cliente;
+    nome             AS "Nome do Cliente",
+    email            AS "E-mail",
+    data_nascimento  AS "Data de Nascimento"
+FROM clientes;
 ```
 
 O asterisco `*` seleciona todas as colunas, mas em sistemas reais evite usá-lo — especifique as colunas que você precisa para melhorar o desempenho e a legibilidade.
@@ -61,7 +61,7 @@ SELECT
     preco * 0.9                             AS "Preço com 10% de Desconto",
     preco * 1.1                             AS "Preço com 10% de Acréscimo",
     CONCAT('R$ ', FORMAT(preco, 2, 'pt_BR')) AS "Preço Formatado"
-FROM produto;
+FROM produtos;
 ```
 
 ---
@@ -71,11 +71,11 @@ FROM produto;
 O `DISTINCT` remove linhas duplicadas do resultado:
 
 ```sql
--- Quais cidades distintas temos na nossa base de clientes?
-SELECT DISTINCT cidade FROM cliente;
+-- Quais status de pedido distintos existem?
+SELECT DISTINCT status FROM pedidos;
 
--- Quais status de pedido existem?
-SELECT DISTINCT status FROM pedido;
+-- Quais categorias distintas têm produtos cadastrados?
+SELECT DISTINCT nome FROM categorias;
 ```
 
 ---
@@ -84,10 +84,10 @@ SELECT DISTINCT status FROM pedido;
 
 ```sql
 -- Retornar apenas os 5 primeiros produtos
-SELECT * FROM produto LIMIT 5;
+SELECT * FROM produtos LIMIT 5;
 
 -- Paginação: pular os primeiros 10 e mostrar os próximos 5
-SELECT * FROM produto LIMIT 5 OFFSET 10;
+SELECT * FROM produtos LIMIT 5 OFFSET 10;
 ```
 
 ---

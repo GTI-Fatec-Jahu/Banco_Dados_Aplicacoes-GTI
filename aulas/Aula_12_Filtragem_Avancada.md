@@ -18,10 +18,10 @@ O `WHERE` é o filtro da consulta. Ele avalia uma condição para cada linha da 
 
 ```sql
 -- Operadores de comparação básicos
-SELECT * FROM produto WHERE preco > 100;          -- maior que
-SELECT * FROM produto WHERE estoque = 0;          -- igual a
-SELECT * FROM cliente WHERE cidade != 'São Paulo'; -- diferente de
-SELECT * FROM produto WHERE preco <= 50;          -- menor ou igual
+SELECT * FROM produtos WHERE preco > 100;              -- maior que
+SELECT * FROM produtos WHERE estoque = 0;              -- igual a
+SELECT * FROM clientes WHERE nome != 'João da Silva';  -- diferente de
+SELECT * FROM produtos WHERE preco <= 50;              -- menor ou igual
 ```
 
 ---
@@ -34,12 +34,12 @@ SELECT * FROM produto
 WHERE preco > 50 AND estoque > 0;
 
 -- OR: pelo menos uma condição deve ser verdadeira
-SELECT * FROM pedido
+SELECT * FROM pedidos
 WHERE status = 'CANCELADO' OR status = 'DEVOLVIDO';
 
 -- NOT: inverte a condição
-SELECT * FROM cliente
-WHERE NOT cidade = 'Jahu';
+SELECT * FROM clientes
+WHERE NOT nome LIKE 'A%';
 ```
 
 Quando combinar `AND` e `OR`, use parênteses para garantir a precedência correta — `AND` tem precedência sobre `OR`, o que pode gerar resultados inesperados.
@@ -55,23 +55,23 @@ O SQL oferece operadores que tornam filtros comuns mais elegantes e legíveis.
 SELECT * FROM produto
 WHERE preco BETWEEN 50 AND 200;
 
-SELECT * FROM pedido
+SELECT * FROM pedidos
 WHERE data_pedido BETWEEN '2026-01-01' AND '2026-06-30';
 
 -- IN: lista de valores permitidos (mais limpo que múltiplos OR)
-SELECT * FROM pedido
+SELECT * FROM pedidos
 WHERE status IN ('CONFIRMADO', 'EM_TRANSITO', 'ENTREGUE');
 
 -- LIKE: busca por padrão em texto
 --   % = zero ou mais caracteres
 --   _ = exatamente um caractere
-SELECT * FROM cliente WHERE nome LIKE 'Ana%';       -- começa com Ana
-SELECT * FROM cliente WHERE email LIKE '%@gmail%';  -- contém @gmail
-SELECT * FROM produto WHERE nome LIKE '_ouse%';     -- segundo char: 'o', ex: Mouse
+SELECT * FROM clientes WHERE nome LIKE 'Ana%';       -- começa com Ana
+SELECT * FROM clientes WHERE email LIKE '%@gmail%';  -- contém @gmail
+SELECT * FROM produtos WHERE nome LIKE '_ouse%';     -- segundo char: 'o', ex: Mouse
 
 -- IS NULL / IS NOT NULL: verificar valores nulos
-SELECT * FROM cliente WHERE email IS NULL;           -- sem e-mail cadastrado
-SELECT * FROM matricula WHERE nota_final IS NOT NULL; -- nota já lançada
+SELECT * FROM clientes WHERE email IS NULL;           -- sem e-mail cadastrado
+SELECT * FROM matriculas WHERE nota_final IS NOT NULL; -- nota já lançada
 ```
 
 ---
@@ -86,8 +86,8 @@ SELECT nome, preco FROM produto ORDER BY preco ASC;
 SELECT nome, preco FROM produto ORDER BY preco DESC;
 
 -- Múltiplos critérios de ordenação
-SELECT nome, cidade, email FROM cliente
-ORDER BY cidade ASC, nome ASC;  -- Primeiro por cidade, depois por nome dentro da mesma cidade
+SELECT nome, email FROM clientes
+ORDER BY nome ASC;  -- Ordem alfabética por nome
 ```
 
 ---
@@ -100,7 +100,7 @@ SELECT
     preco           AS "Preço (R$)",
     estoque         AS "Qtd. em Estoque",
     preco * estoque AS "Valor Total em Estoque"
-FROM produto
+FROM produtos
 WHERE preco BETWEEN 50 AND 500
   AND estoque > 0
   AND nome NOT LIKE '%Usado%'

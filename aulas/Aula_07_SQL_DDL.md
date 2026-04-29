@@ -12,7 +12,7 @@ Ao final desta aula você deverá ser capaz de:
 - Compreender as subcategorias da linguagem SQL e o papel da DDL entre elas
 - Aplicar convenções de nomenclatura profissionais em todo código SQL
 - Escolher os tipos de dados corretos para cada situação, evitando as armadilhas mais comuns
-- Utilizar `CREATE TABLE` com constraints nomeadas, ENGINE e charset adequados
+- Utilizar `CREATE TABLE` com constraints nomeadas e tipos de dados corretos
 - Aplicar todas as principais constraints: `PRIMARY KEY`, `FOREIGN KEY`, `UNIQUE`, `CHECK`, `NOT NULL` e `DEFAULT`
 - Modificar e remover estruturas com `ALTER TABLE` e `DROP TABLE`
 - Implementar fisicamente um banco de dados completo a partir do modelo lógico
@@ -60,7 +60,7 @@ Antes de escrever uma única linha de SQL, precisamos estabelecer um conjunto de
 
 **Regra 4 — Nomes de tabelas sempre no plural:** a tabela armazena uma coleção de registros, então seu nome deve refletir isso. `clientes`, `pedidos`, `produtos` — nunca `cliente`, `pedido`, `produto`.
 
-**Regra 5 — Chave primária no padrão `id_nome_tabela_singular`:** tabela `clientes` → PK `id_cliente`; tabela `pedidos` → PK `id_pedido`; tabela `categorias_produtos` → PK `id_categoria_produto`.
+**Regra 5 — Chave primária no padrão `id_nome_tabela_singular`:** o nome da PK sempre usa o singular do nome da tabela com `BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY`. Exemplos: tabela `clientes` → PK `id_cliente`; tabela `pedidos` → PK `id_pedido`; tabela `categorias_produtos` → PK `id_categoria_produto`.
 
 **Regra 6 — Chave estrangeira no padrão `tabela_referencia_id`:** o nome da FK usa o nome da tabela referenciada. Exemplo: na tabela `itens_pedidos`, a FK que aponta para `produtos` deve se chamar `produto_id`.
 
@@ -73,16 +73,18 @@ CREATE TABLE vendas (
     pessoa2_id INT NOT NULL
 );
 
--- ✅ CORRETO: use o papel semântico de cada um
+-- ✅ CORRETO: use o papel semântico de cada um (e siga TODAS as 9 regras)
 CREATE TABLE vendas (
-    id_venda       INT UNSIGNED  NOT NULL AUTO_INCREMENT,
-    cliente_id     INT UNSIGNED  NOT NULL,  -- referencia pessoas (papel: cliente)
-    funcionario_id INT UNSIGNED  NOT NULL,  -- referencia pessoas (papel: vendedor)
-    data_venda     DATE          NOT NULL,
-
-    CONSTRAINT pk_venda           PRIMARY KEY (id_venda),
-    CONSTRAINT fk_venda_cliente   FOREIGN KEY (cliente_id)    REFERENCES pessoas (id_pessoa),
-    CONSTRAINT fk_venda_vendedor  FOREIGN KEY (funcionario_id) REFERENCES pessoas (id_pessoa)
+    id_venda        BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT,
+    cliente_id      BIGINT UNSIGNED  NOT NULL,                  -- referencia pessoas (papel: cliente)
+    funcionario_id  BIGINT UNSIGNED  NOT NULL,                  -- referencia pessoas (papel: vendedor)
+    data_venda      DATE             NOT NULL,
+    criado_em       DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em   DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deletado_em     DATETIME             NULL,
+    CONSTRAINT pk_venda              PRIMARY KEY (id_venda),
+    CONSTRAINT fk_venda_cliente      FOREIGN KEY (cliente_id)     REFERENCES pessoas (id_pessoa),
+    CONSTRAINT fk_venda_funcionario  FOREIGN KEY (funcionario_id) REFERENCES pessoas (id_pessoa)
 );
 ```
 
@@ -226,8 +228,8 @@ id_produto INT NOT NULL
 **`UNSIGNED` — quando usar:** o modificador `UNSIGNED` elimina os valores negativos e dobra o limite positivo. Chaves primárias auto-incrementadas **nunca** serão negativas, então faz sentido usá-lo — mas atenção: operações de subtração entre dois `UNSIGNED` podem gerar erro se o resultado for negativo.
 
 ```sql
--- Chave primária sem sinal: dobra o limite de ~2 bi para ~4,29 bi
-id_cliente INT UNSIGNED NOT NULL AUTO_INCREMENT
+-- Chave primária sem sinal e BIGINT: suporta até ~18,4 quintilhões de registros
+id_cliente BIGINT UNSIGNED NOT NULL AUTO_INCREMENT
 ```
 
 ### 5.2 Tipos Numéricos com Ponto Flutuante e Decimais
@@ -298,14 +300,17 @@ descricao    VARCHAR(500)            -- nullable: sem NOT NULL
 **O problema do ano 2038 com `TIMESTAMP`:** o `TIMESTAMP` usa um inteiro de 32 bits contando segundos a partir de 1970-01-01. Esse contador estoura em 19 de janeiro de 2038. Para datas além disso, use `DATETIME` ou `BIGINT`.
 
 ```sql
--- Datas de eventos passados ou futuros distantes: use DATE ou DATETIME
-data_nascimento  DATE        NOT NULL,
-data_vencimento  DATE        NOT NULL,
+-- Datas de eventos de negócio: use DATE ou DATETIME
+data_nascimento  DATE      NOT NULL,
+data_vencimento  DATE      NOT NULL,
 
--- Registros automáticos de criação/atualização: TIMESTAMP é ideal
-criado_em        TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-atualizado_em    TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP
-                             ON UPDATE CURRENT_TIMESTAMP
+-- Campos de log de auditoria (Regra 9): sempre DATETIME — nunca TIMESTAMP
+-- TIMESTAMP tem o problema do ano 2038 e converte fuso automaticamente,
+-- o que pode gerar surpresas em ambientes com fuso diferente do servidor.
+criado_em        DATETIME  NOT NULL DEFAULT CURRENT_TIMESTAMP,
+atualizado_em    DATETIME  NOT NULL DEFAULT CURRENT_TIMESTAMP
+                           ON UPDATE CURRENT_TIMESTAMP,
+deletado_em      DATETIME      NULL
 ```
 
 ### 5.5 Tipos Especiais
@@ -336,7 +341,7 @@ CREATE TABLE IF NOT EXISTS nome_tabela (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 ```
 
-O `ENGINE=InnoDB` é o mecanismo de armazenamento que suporta **transações**, **chaves estrangeiras** e **bloqueios a nível de linha** — sem ele, as FKs são ignoradas silenciosamente. Sempre especifique `InnoDB` explicitamente.
+O `ENGINE=InnoDB` é o mecanismo de armazenamento que suporta **transações**, **chaves estrangeiras** e **bloqueios a nível de linha**. Especificá-lo explicitamente é uma **boa prática** — garante que o engine correto seja usado independentemente das configurações do servidor. Porém, **neste material não iremos utilizá-lo**: o MariaDB e o MySQL modernos já adotam `InnoDB` como engine padrão e `utf8mb4` como charset padrão, portanto omitir esses parâmetros não altera o comportamento. Fique ciente de que eles existem e, em ambientes com configurações não padrão, especificá-los explicitamente é a coisa certa a fazer.
 
 O `IF NOT EXISTS` torna o script **idempotente** — pode ser executado múltiplas vezes sem erro. É boa prática em scripts de setup de ambiente.
 
@@ -346,24 +351,22 @@ Nomear as constraints (`CONSTRAINT pk_cliente PRIMARY KEY`) é altamente recomen
 
 ```sql
 CREATE TABLE IF NOT EXISTS clientes (
-    id_cliente       INT UNSIGNED     NOT NULL AUTO_INCREMENT,
-    nome             VARCHAR(100)     NOT NULL,
+    id_cliente       BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT,
+    nome             VARCHAR(255)     NOT NULL,
     cpf              CHAR(11)         NOT NULL COMMENT 'Apenas dígitos, sem formatação',
     email            VARCHAR(255)     NOT NULL,
     data_nascimento  DATE             NOT NULL,
     telefone         CHAR(11)             NULL COMMENT 'Apenas dígitos',
-    criado_em        TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    atualizado_em    TIMESTAMP        NOT NULL DEFAULT CURRENT_TIMESTAMP
+    criado_em        DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em    DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP
                                                ON UPDATE CURRENT_TIMESTAMP,
+    deletado_em      DATETIME             NULL,
 
     CONSTRAINT pk_cliente  PRIMARY KEY (id_cliente),
     CONSTRAINT uq_cpf      UNIQUE (cpf),
     CONSTRAINT uq_email    UNIQUE (email)
 
-) ENGINE=InnoDB
-  DEFAULT CHARSET=utf8mb4
-  COLLATE=utf8mb4_unicode_ci
-  COMMENT='Cadastro de clientes';
+) COMMENT='Cadastro de clientes';
 ```
 
 Observe algumas decisões de projeto: o CPF é armazenado como `CHAR(11)` apenas com dígitos, porque a formatação com pontos e traço é responsabilidade da camada de apresentação, não do banco. O `COMMENT` na tabela documenta o propósito diretamente no schema — útil em ferramentas como DBeaver e MySQL Workbench.
@@ -372,33 +375,36 @@ Observe algumas decisões de projeto: o CPF é armazenado como `CHAR(11)` apenas
 
 ```sql
 CREATE TABLE IF NOT EXISTS categorias (
-    id_categoria  INT UNSIGNED  NOT NULL AUTO_INCREMENT,
-    nome          VARCHAR(80)   NOT NULL,
-    descricao     TEXT              NULL,
-    ativa         TINYINT(1)    NOT NULL DEFAULT 1  COMMENT '1 = ativa, 0 = inativa',
+    id_categoria  BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT,
+    nome          VARCHAR(255)     NOT NULL,
+    descricao     TEXT                 NULL,
+    ativa         TINYINT(1)       NOT NULL DEFAULT 1  COMMENT '1 = ativa, 0 = inativa',
+    criado_em     DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP
+                                            ON UPDATE CURRENT_TIMESTAMP,
+    deletado_em   DATETIME             NULL,
 
     CONSTRAINT pk_categoria  PRIMARY KEY (id_categoria),
     CONSTRAINT uq_cat_nome   UNIQUE (nome)
 
-) ENGINE=InnoDB
-  DEFAULT CHARSET=utf8mb4
-  COLLATE=utf8mb4_unicode_ci;
+);
 ```
 
 ### 6.4 Tabela `produtos` — com FK e CHECK
 
 ```sql
 CREATE TABLE IF NOT EXISTS produtos (
-    id_produto    INT UNSIGNED    NOT NULL AUTO_INCREMENT,
-    categoria_id  INT UNSIGNED    NOT NULL,
-    nome          VARCHAR(150)    NOT NULL,
-    descricao     TEXT                NULL,
-    preco         DECIMAL(10, 2)  NOT NULL,
-    estoque       INT             NOT NULL DEFAULT 0,
-    ativo         TINYINT(1)      NOT NULL DEFAULT 1,
-    criado_em     TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    atualizado_em TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP
-                                           ON UPDATE CURRENT_TIMESTAMP,
+    id_produto    BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT,
+    categoria_id  BIGINT UNSIGNED  NOT NULL,
+    nome          VARCHAR(255)     NOT NULL,
+    descricao     TEXT                 NULL,
+    preco         DECIMAL(10, 2)   NOT NULL,
+    estoque       INT              NOT NULL DEFAULT 0,
+    ativo         TINYINT(1)       NOT NULL DEFAULT 1,
+    criado_em     DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP
+                                            ON UPDATE CURRENT_TIMESTAMP,
+    deletado_em   DATETIME             NULL,
 
     CONSTRAINT pk_produto           PRIMARY KEY (id_produto),
     CONSTRAINT fk_produto_categoria FOREIGN KEY (categoria_id)
@@ -408,9 +414,7 @@ CREATE TABLE IF NOT EXISTS produtos (
     CONSTRAINT ck_produto_preco     CHECK (preco >= 0),
     CONSTRAINT ck_produto_estoque   CHECK (estoque >= 0)
 
-) ENGINE=InnoDB
-  DEFAULT CHARSET=utf8mb4
-  COLLATE=utf8mb4_unicode_ci;
+);
 ```
 
 > ⚠️ **Sobre `CHECK` no MariaDB:** no MySQL até a versão 8.0.15, constraints `CHECK` eram aceitas na sintaxe mas completamente ignoradas. No **MariaDB**, funcionam corretamente **desde a versão 10.2.1**. Como usamos MariaDB via XAMPP, as constraints `CHECK` funcionam normalmente — verifique sua versão com `SELECT VERSION()`.
@@ -421,10 +425,10 @@ Este é o exemplo que demonstra a Regra 7 das convenções — duas FKs que refe
 
 ```sql
 CREATE TABLE IF NOT EXISTS pedidos (
-    id_pedido       INT UNSIGNED    NOT NULL AUTO_INCREMENT,
-    cliente_id      INT UNSIGNED    NOT NULL,  -- pessoa no papel de comprador
-    funcionario_id  INT UNSIGNED        NULL,  -- pessoa no papel de atendente (pode ser nulo: venda online)
-    data_pedido     TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    id_pedido       BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT,
+    cliente_id      BIGINT UNSIGNED  NOT NULL,   -- pessoa no papel de comprador
+    funcionario_id  BIGINT UNSIGNED      NULL,   -- pessoa no papel de atendente (pode ser nulo: venda online)
+    data_pedido     DATE             NOT NULL DEFAULT (CURRENT_DATE),
     status          ENUM(
                         'pendente',
                         'confirmado',
@@ -432,9 +436,13 @@ CREATE TABLE IF NOT EXISTS pedidos (
                         'enviado',
                         'entregue',
                         'cancelado'
-                    )               NOT NULL DEFAULT 'pendente',
-    valor_total     DECIMAL(12, 2)  NOT NULL DEFAULT 0.00,
-    observacoes     TEXT                NULL,
+                    )                NOT NULL DEFAULT 'pendente',
+    valor_total     DECIMAL(12, 2)   NOT NULL DEFAULT 0.00,
+    observacoes     TEXT                 NULL,
+    criado_em       DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em   DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP
+                                              ON UPDATE CURRENT_TIMESTAMP,
+    deletado_em     DATETIME             NULL,
 
     CONSTRAINT pk_pedido              PRIMARY KEY (id_pedido),
     CONSTRAINT fk_pedido_cliente      FOREIGN KEY (cliente_id)
@@ -447,9 +455,7 @@ CREATE TABLE IF NOT EXISTS pedidos (
                                       ON UPDATE CASCADE,
     CONSTRAINT ck_pedido_valor        CHECK (valor_total >= 0)
 
-) ENGINE=InnoDB
-  DEFAULT CHARSET=utf8mb4
-  COLLATE=utf8mb4_unicode_ci;
+);
 ```
 
 ### 6.6 Tabela `itens_pedidos` — chave composta e relacionamento N:M
@@ -457,14 +463,22 @@ CREATE TABLE IF NOT EXISTS pedidos (
 ```sql
 -- Resolve o relacionamento N:M entre pedidos e produtos
 -- Um pedido pode conter muitos produtos; um produto pode estar em muitos pedidos
+-- PK surrogate obrigatória aqui: sem ela, deletado_em (Regra 9) colide com a PK composta
+-- pois não seria possível reinserir o mesmo produto no mesmo pedido após um soft-delete.
 CREATE TABLE IF NOT EXISTS itens_pedidos (
-    pedido_id       INT UNSIGNED    NOT NULL,
-    produto_id      INT UNSIGNED    NOT NULL,
-    quantidade      INT UNSIGNED    NOT NULL,
-    preco_unitario  DECIMAL(10, 2)  NOT NULL COMMENT 'Preço no momento da compra',
-    desconto        DECIMAL(5, 2)   NOT NULL DEFAULT 0.00 COMMENT 'Percentual de desconto',
+    id_item_pedido  BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT,
+    pedido_id       BIGINT UNSIGNED  NOT NULL,
+    produto_id      BIGINT UNSIGNED  NOT NULL,
+    quantidade      INT UNSIGNED     NOT NULL,
+    preco_unitario  DECIMAL(10, 2)   NOT NULL COMMENT 'Preço no momento da compra',
+    desconto        DECIMAL(5, 2)    NOT NULL DEFAULT 0.00 COMMENT 'Percentual de desconto',
+    criado_em       DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em   DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP
+                                              ON UPDATE CURRENT_TIMESTAMP,
+    deletado_em     DATETIME             NULL,
 
-    CONSTRAINT pk_item_pedido   PRIMARY KEY (pedido_id, produto_id),
+    CONSTRAINT pk_item_pedido   PRIMARY KEY (id_item_pedido),
+    CONSTRAINT uq_item_pedido   UNIQUE (pedido_id, produto_id),
 
     CONSTRAINT fk_item_pedido   FOREIGN KEY (pedido_id)
                                 REFERENCES pedidos (id_pedido)
@@ -480,9 +494,7 @@ CREATE TABLE IF NOT EXISTS itens_pedidos (
     CONSTRAINT ck_item_preco    CHECK (preco_unitario >= 0),
     CONSTRAINT ck_item_desconto CHECK (desconto >= 0 AND desconto <= 100)
 
-) ENGINE=InnoDB
-  DEFAULT CHARSET=utf8mb4
-  COLLATE=utf8mb4_unicode_ci;
+);
 ```
 
 > 💡 **Por que armazenar `preco_unitario` na tabela de itens?** Porque o preço do produto pode mudar depois que o pedido foi feito. Se você consultasse o preço atual da tabela `produtos`, o valor histórico do pedido mudaria retroativamente — um erro grave em qualquer sistema comercial. O `preco_unitario` é um *snapshot* (fotografia) do preço no momento da compra.
@@ -497,7 +509,7 @@ A chave primária identifica unicamente cada linha da tabela. Ela implica automa
 
 ```sql
 -- PK simples — forma inline:
-id_cliente INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY
+id_cliente BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY
 
 -- PK simples — forma de constraint nomeada (recomendada — facilita ALTER TABLE):
 CONSTRAINT pk_cliente PRIMARY KEY (id_cliente)
@@ -744,56 +756,57 @@ USE loja_virtual;
 -- Tabela: clientes
 -- -----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS clientes (
-    id_cliente       INT UNSIGNED    NOT NULL AUTO_INCREMENT,
-    nome             VARCHAR(100)    NOT NULL,
-    cpf              CHAR(11)        NOT NULL COMMENT 'Apenas dígitos, sem formatação',
-    email            VARCHAR(255)    NOT NULL,
-    data_nascimento  DATE            NOT NULL,
-    telefone         CHAR(11)            NULL COMMENT 'Apenas dígitos',
-    criado_em        TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    atualizado_em    TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP
-                                             ON UPDATE CURRENT_TIMESTAMP,
+    id_cliente       BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT,
+    nome             VARCHAR(255)     NOT NULL,
+    cpf              CHAR(11)         NOT NULL COMMENT 'Apenas dígitos, sem formatação',
+    email            VARCHAR(255)     NOT NULL,
+    data_nascimento  DATE             NOT NULL,
+    telefone         CHAR(11)             NULL COMMENT 'Apenas dígitos',
+    criado_em        DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em    DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP
+                                              ON UPDATE CURRENT_TIMESTAMP,
+    deletado_em      DATETIME             NULL,
 
     CONSTRAINT pk_cliente  PRIMARY KEY (id_cliente),
     CONSTRAINT uq_cpf      UNIQUE (cpf),
     CONSTRAINT uq_email    UNIQUE (email)
 
-) ENGINE=InnoDB
-  DEFAULT CHARSET=utf8mb4
-  COLLATE=utf8mb4_unicode_ci
-  COMMENT='Cadastro de clientes';
+) COMMENT='Cadastro de clientes';
 
 -- -----------------------------------------------------------------------------
 -- Tabela: categorias
 -- -----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS categorias (
-    id_categoria  INT UNSIGNED  NOT NULL AUTO_INCREMENT,
-    nome          VARCHAR(80)   NOT NULL,
-    descricao     TEXT              NULL,
-    ativa         TINYINT(1)    NOT NULL DEFAULT 1,
+    id_categoria  BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT,
+    nome          VARCHAR(255)     NOT NULL,
+    descricao     TEXT                 NULL,
+    ativa         TINYINT(1)       NOT NULL DEFAULT 1,
+    criado_em     DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP
+                                            ON UPDATE CURRENT_TIMESTAMP,
+    deletado_em   DATETIME             NULL,
 
     CONSTRAINT pk_categoria  PRIMARY KEY (id_categoria),
     CONSTRAINT uq_cat_nome   UNIQUE (nome)
 
-) ENGINE=InnoDB
-  DEFAULT CHARSET=utf8mb4
-  COLLATE=utf8mb4_unicode_ci;
+);
 
 -- -----------------------------------------------------------------------------
 -- Tabela: produtos
 -- Referencia categorias (N:1)
 -- -----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS produtos (
-    id_produto    INT UNSIGNED    NOT NULL AUTO_INCREMENT,
-    categoria_id  INT UNSIGNED    NOT NULL,
-    nome          VARCHAR(150)    NOT NULL,
-    descricao     TEXT                NULL,
-    preco         DECIMAL(10, 2)  NOT NULL,
-    estoque       INT             NOT NULL DEFAULT 0,
-    ativo         TINYINT(1)      NOT NULL DEFAULT 1,
-    criado_em     TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    atualizado_em TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP
-                                           ON UPDATE CURRENT_TIMESTAMP,
+    id_produto    BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT,
+    categoria_id  BIGINT UNSIGNED  NOT NULL,
+    nome          VARCHAR(255)     NOT NULL,
+    descricao     TEXT                 NULL,
+    preco         DECIMAL(10, 2)   NOT NULL,
+    estoque       INT              NOT NULL DEFAULT 0,
+    ativo         TINYINT(1)       NOT NULL DEFAULT 1,
+    criado_em     DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP
+                                            ON UPDATE CURRENT_TIMESTAMP,
+    deletado_em   DATETIME             NULL,
 
     CONSTRAINT pk_produto           PRIMARY KEY (id_produto),
     CONSTRAINT fk_produto_categoria FOREIGN KEY (categoria_id)
@@ -803,19 +816,17 @@ CREATE TABLE IF NOT EXISTS produtos (
     CONSTRAINT ck_preco             CHECK (preco >= 0),
     CONSTRAINT ck_estoque           CHECK (estoque >= 0)
 
-) ENGINE=InnoDB
-  DEFAULT CHARSET=utf8mb4
-  COLLATE=utf8mb4_unicode_ci;
+);
 
 -- -----------------------------------------------------------------------------
 -- Tabela: pedidos
 -- Demonstra FKs semânticas: cliente_id e funcionario_id referenciam clientes
 -- -----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS pedidos (
-    id_pedido      INT UNSIGNED    NOT NULL AUTO_INCREMENT,
-    cliente_id     INT UNSIGNED    NOT NULL,   -- pessoa no papel de comprador
-    funcionario_id INT UNSIGNED        NULL,   -- pessoa no papel de atendente
-    data_pedido    TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    id_pedido      BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT,
+    cliente_id     BIGINT UNSIGNED  NOT NULL,   -- pessoa no papel de comprador
+    funcionario_id BIGINT UNSIGNED      NULL,   -- pessoa no papel de atendente
+    data_pedido    DATE             NOT NULL,
     status         ENUM(
                        'pendente',
                        'confirmado',
@@ -823,9 +834,13 @@ CREATE TABLE IF NOT EXISTS pedidos (
                        'enviado',
                        'entregue',
                        'cancelado'
-                   )               NOT NULL DEFAULT 'pendente',
-    valor_total    DECIMAL(12, 2)  NOT NULL DEFAULT 0.00,
-    observacoes    TEXT                NULL,
+                   )                NOT NULL DEFAULT 'pendente',
+    valor_total    DECIMAL(12, 2)   NOT NULL DEFAULT 0.00,
+    observacoes    TEXT                 NULL,
+    criado_em      DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em  DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP
+                                             ON UPDATE CURRENT_TIMESTAMP,
+    deletado_em    DATETIME             NULL,
 
     CONSTRAINT pk_pedido             PRIMARY KEY (id_pedido),
     CONSTRAINT fk_pedido_cliente     FOREIGN KEY (cliente_id)
@@ -838,23 +853,28 @@ CREATE TABLE IF NOT EXISTS pedidos (
                                      ON UPDATE CASCADE,
     CONSTRAINT ck_valor_total        CHECK (valor_total >= 0)
 
-) ENGINE=InnoDB
-  DEFAULT CHARSET=utf8mb4
-  COLLATE=utf8mb4_unicode_ci;
+);
 
 -- -----------------------------------------------------------------------------
 -- Tabela: itens_pedidos
 -- Resolve o N:M entre pedidos e produtos
 -- Armazena snapshot do preço no momento da compra
+-- PK surrogate necessária para compatibilidade com deletado_em (Regra 9)
 -- -----------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS itens_pedidos (
-    pedido_id      INT UNSIGNED    NOT NULL,
-    produto_id     INT UNSIGNED    NOT NULL,
-    quantidade     INT UNSIGNED    NOT NULL,
-    preco_unitario DECIMAL(10, 2)  NOT NULL COMMENT 'Preço no momento da compra',
-    desconto       DECIMAL(5, 2)   NOT NULL DEFAULT 0.00 COMMENT 'Percentual de desconto',
+    id_item_pedido BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT,
+    pedido_id      BIGINT UNSIGNED  NOT NULL,
+    produto_id     BIGINT UNSIGNED  NOT NULL,
+    quantidade     INT UNSIGNED     NOT NULL,
+    preco_unitario DECIMAL(10, 2)   NOT NULL COMMENT 'Preço no momento da compra',
+    desconto       DECIMAL(5, 2)    NOT NULL DEFAULT 0.00 COMMENT 'Percentual de desconto',
+    criado_em      DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em  DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP
+                                             ON UPDATE CURRENT_TIMESTAMP,
+    deletado_em    DATETIME             NULL,
 
-    CONSTRAINT pk_item_pedido   PRIMARY KEY (pedido_id, produto_id),
+    CONSTRAINT pk_item_pedido   PRIMARY KEY (id_item_pedido),
+    CONSTRAINT uq_item_pedido   UNIQUE (pedido_id, produto_id),
     CONSTRAINT fk_item_pedido   FOREIGN KEY (pedido_id)
                                 REFERENCES pedidos (id_pedido)
                                 ON DELETE CASCADE
@@ -867,9 +887,7 @@ CREATE TABLE IF NOT EXISTS itens_pedidos (
     CONSTRAINT ck_item_preco    CHECK (preco_unitario >= 0),
     CONSTRAINT ck_item_desconto CHECK (desconto >= 0 AND desconto <= 100)
 
-) ENGINE=InnoDB
-  DEFAULT CHARSET=utf8mb4
-  COLLATE=utf8mb4_unicode_ci;
+);
 ```
 
 ---
@@ -888,27 +906,28 @@ CREATE TABLE Produto (
 );
 ```
 
-**Gabarito:** os erros são: nome da tabela em singular e com inicial maiúscula (deve ser `produtos`); `idProduto` usa camelCase (deve ser `id_produto`); `INT(11)` está depreciado (use `INT`); `NomeProduto` mistura maiúsculas (deve ser `nome`); `Preco` com maiúscula (deve ser `preco`); `FLOAT` inapropriado para preço (use `DECIMAL(10,2)`); `ID_CATEGORIA` mistura maiúsculas (deve ser `categoria_id` conforme Regra 6); faltam `NOT NULL` nas colunas obrigatórias; a constraint FK não é nomeada; faltam `ENGINE=InnoDB` e `DEFAULT CHARSET`.
+**Gabarito:** os erros são: nome da tabela em singular e com inicial maiúscula (deve ser `produtos`); `idProduto` usa camelCase (deve ser `id_produto`); `INT(11)` está depreciado e deveria ser `BIGINT UNSIGNED`; `NomeProduto` mistura maiúsculas (deve ser `nome`); `Preco` com maiúscula (deve ser `preco`); `FLOAT` inapropriado para preço (use `DECIMAL(10,2)`); `ID_CATEGORIA` mistura maiúsculas (deve ser `categoria_id` conforme Regra 6); faltam `NOT NULL` nas colunas obrigatórias; a constraint FK não é nomeada; faltam os campos de log (`criado_em`, `atualizado_em`, `deletado_em` — Regra 9).
 
 Versão corrigida:
 
 ```sql
 CREATE TABLE IF NOT EXISTS produtos (
-    id_produto   INT UNSIGNED    NOT NULL AUTO_INCREMENT,
-    categoria_id INT UNSIGNED    NOT NULL,
-    nome         VARCHAR(100)    NOT NULL,
-    preco        DECIMAL(10, 2)  NOT NULL,
+    id_produto    BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT,
+    categoria_id  BIGINT UNSIGNED  NOT NULL,
+    nome          VARCHAR(255)     NOT NULL,
+    preco         DECIMAL(10, 2)   NOT NULL,
+    criado_em     DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deletado_em   DATETIME             NULL,
 
-    CONSTRAINT pk_produto          PRIMARY KEY (id_produto),
+    CONSTRAINT pk_produto           PRIMARY KEY (id_produto),
     CONSTRAINT fk_produto_categoria FOREIGN KEY (categoria_id)
                                     REFERENCES categorias (id_categoria)
                                     ON DELETE RESTRICT
                                     ON UPDATE CASCADE,
-    CONSTRAINT ck_preco            CHECK (preco >= 0)
+    CONSTRAINT ck_preco             CHECK (preco >= 0)
 
-) ENGINE=InnoDB
-  DEFAULT CHARSET=utf8mb4
-  COLLATE=utf8mb4_unicode_ci;
+);
 ```
 
 **Exercício 2 — Criação guiada:** crie o DDL completo para um sistema de biblioteca com as entidades: `autores`, `livros`, `usuarios`, `emprestimos`. Siga todas as convenções desta disciplina. Um livro pode ter múltiplos autores; um usuário pode ter múltiplos empréstimos; cada empréstimo é de um único livro.

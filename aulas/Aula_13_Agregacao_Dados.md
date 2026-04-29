@@ -22,19 +22,19 @@ As funções de agregação calculam um único valor a partir de um conjunto de 
 
 ```sql
 -- COUNT: conta registros
-SELECT COUNT(*)             AS total_clientes FROM cliente;
-SELECT COUNT(email)         AS clientes_com_email FROM cliente; -- ignora NULLs
+SELECT COUNT(*)             AS total_clientes FROM clientes;
+SELECT COUNT(email)         AS clientes_com_email FROM clientes; -- ignora NULLs
 
 -- SUM: soma valores
-SELECT SUM(preco * estoque) AS valor_total_estoque FROM produto;
+SELECT SUM(preco * estoque) AS valor_total_estoque FROM produtos;
 
 -- AVG: média aritmética
-SELECT AVG(preco)           AS preco_medio FROM produto;
+SELECT AVG(preco)           AS preco_medio FROM produtos;
 
 -- MIN e MAX: menor e maior valor
 SELECT MIN(preco) AS mais_barato,
        MAX(preco) AS mais_caro
-FROM produto;
+FROM produtos;
 ```
 
 ---
@@ -46,17 +46,17 @@ O `GROUP BY` divide as linhas em grupos com base em um ou mais atributos, e ent�
 ```sql
 -- Quantos pedidos existem por status?
 SELECT status, COUNT(*) AS quantidade
-FROM pedido
+FROM pedidos
 GROUP BY status;
 
 -- Valor total vendido por mês
 SELECT
-    YEAR(data_pedido)   AS ano,
-    MONTH(data_pedido)  AS mes,
-    SUM(preco_unitario * quantidade) AS total_vendas
-FROM pedido
-JOIN item_pedido USING (id_pedido)
-GROUP BY YEAR(data_pedido), MONTH(data_pedido)
+    YEAR(p.data_pedido)   AS ano,
+    MONTH(p.data_pedido)  AS mes,
+    SUM(ip.preco_unitario * ip.quantidade) AS total_vendas
+FROM pedidos p
+JOIN itens_pedidos ip ON p.id_pedido = ip.pedido_id
+GROUP BY YEAR(p.data_pedido), MONTH(p.data_pedido)
 ORDER BY ano, mes;
 ```
 
@@ -73,8 +73,8 @@ O `HAVING` é o `WHERE` dos grupos. Enquanto o `WHERE` filtra linhas individuais
 SELECT
     c.nome,
     COUNT(p.id_pedido) AS total_pedidos
-FROM cliente c
-JOIN pedido p ON c.id_cliente = p.id_cliente
+FROM clientes c
+JOIN pedidos p ON c.id_cliente = p.cliente_id
 GROUP BY c.id_cliente, c.nome
 HAVING COUNT(p.id_pedido) > 3
 ORDER BY total_pedidos DESC;
@@ -83,8 +83,8 @@ ORDER BY total_pedidos DESC;
 SELECT
     pr.nome,
     AVG(ip.preco_unitario) AS preco_medio_vendido
-FROM produto pr
-JOIN item_pedido ip ON pr.id_produto = ip.id_produto
+FROM produtos pr
+JOIN itens_pedidos ip ON pr.id_produto = ip.produto_id
 GROUP BY pr.id_produto, pr.nome
 HAVING AVG(ip.preco_unitario) > 100;
 ```

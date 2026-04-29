@@ -41,15 +41,15 @@ Uma **stored procedure** é um bloco de código SQL + lógica procedural armazen
 DELIMITER $$
 
 CREATE PROCEDURE registrar_pedido(
-    IN  p_id_cliente INT,
-    IN  p_status     VARCHAR(20),
-    OUT p_id_pedido  INT
+    IN  p_cliente_id  BIGINT UNSIGNED,
+    IN  p_status      VARCHAR(20),
+    OUT p_id_pedido   BIGINT UNSIGNED
 )
 BEGIN
     -- Insere o pedido
-    INSERT INTO pedido (id_cliente, status)
-    VALUES (p_id_cliente, p_status);
-    
+    INSERT INTO pedidos (cliente_id, data_pedido, status)
+    VALUES (p_cliente_id, CURDATE(), p_status);
+
     -- Retorna o ID gerado
     SET p_id_pedido = LAST_INSERT_ID();
 END$$
@@ -57,7 +57,7 @@ END$$
 DELIMITER ;
 
 -- Chamando o procedimento
-CALL registrar_pedido(1, 'PENDENTE', @novo_id);
+CALL registrar_pedido(1, 'pendente', @novo_id);
 SELECT @novo_id AS pedido_criado;
 ```
 
@@ -70,8 +70,8 @@ Uma **function** é similar a uma procedure, mas **sempre retorna um valor** e p
 ```sql
 DELIMITER $$
 
-CREATE FUNCTION calcular_desconto(preco DECIMAL(10,2), percentual INT)
-RETURNS DECIMAL(10,2)
+CREATE FUNCTION calcular_desconto(preco DECIMAL(10, 2), percentual INT)
+RETURNS DECIMAL(10, 2)
 DETERMINISTIC
 BEGIN
     RETURN preco - (preco * percentual / 100);
@@ -81,7 +81,7 @@ DELIMITER ;
 
 -- Usando a função em uma consulta
 SELECT nome, preco, calcular_desconto(preco, 10) AS preco_com_desconto
-FROM produto;
+FROM produtos;
 ```
 
 ---
@@ -95,11 +95,11 @@ Um **trigger** é executado automaticamente quando um evento específico ocorre 
 DELIMITER $$
 
 CREATE TRIGGER after_pedido_update
-AFTER UPDATE ON pedido
+AFTER UPDATE ON pedidos
 FOR EACH ROW
 BEGIN
     IF OLD.status != NEW.status THEN
-        INSERT INTO log_pedido (id_pedido, status_anterior, status_novo, data_alteracao)
+        INSERT INTO logs_pedidos (pedido_id, status_anterior, status_novo, criado_em)
         VALUES (NEW.id_pedido, OLD.status, NEW.status, NOW());
     END IF;
 END$$

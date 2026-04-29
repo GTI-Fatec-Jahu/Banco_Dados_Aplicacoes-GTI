@@ -42,13 +42,11 @@ SELECT
     p.id_pedido    AS pedido,
     p.data_pedido,
     p.status
-FROM cliente c
-INNER JOIN pedido p ON c.id_cliente = p.id_cliente;
+FROM clientes c
+INNER JOIN pedidos p ON c.id_cliente = p.cliente_id;
 
--- Sintaxe com USING (quando as colunas têm o mesmo nome nos dois lados)
-SELECT c.nome, p.id_pedido, p.status
-FROM cliente c
-INNER JOIN pedido p USING (id_cliente);
+-- Sintaxe com USING só funciona quando as colunas têm exatamente o mesmo nome nos dois lados.
+-- Com nossa convenção (PK: id_cliente / FK: cliente_id), os nomes diferem — use sempre ON.
 ```
 
 ---
@@ -58,7 +56,7 @@ INNER JOIN pedido p USING (id_cliente);
 Podemos encadear quantos JOINs forem necessários:
 
 ```sql
--- Cliente → Pedido → Item → Produto (4 tabelas)
+-- clientes → pedidos → itens_pedidos → produtos (4 tabelas)
 SELECT
     c.nome                  AS cliente,
     p.id_pedido,
@@ -67,11 +65,11 @@ SELECT
     ip.quantidade,
     ip.preco_unitario,
     ip.quantidade * ip.preco_unitario AS subtotal
-FROM cliente c
-INNER JOIN pedido     p  ON c.id_cliente  = p.id_cliente
-INNER JOIN item_pedido ip ON p.id_pedido   = ip.id_pedido
-INNER JOIN produto    pr ON ip.id_produto  = pr.id_produto
-WHERE p.status = 'ENTREGUE'
+FROM clientes c
+INNER JOIN pedidos       p  ON c.id_cliente  = p.cliente_id
+INNER JOIN itens_pedidos ip ON p.id_pedido   = ip.pedido_id
+INNER JOIN produtos      pr ON ip.produto_id = pr.id_produto
+WHERE p.status = 'entregue'
 ORDER BY c.nome, p.data_pedido;
 ```
 
@@ -86,8 +84,8 @@ Perceba o uso de `c`, `p`, `ip`, `pr` nos exemplos acima. São **aliases de tabe
 SELECT
     f.nome          AS funcionario,
     s.nome          AS supervisor
-FROM funcionario f
-INNER JOIN funcionario s ON f.id_supervisor = s.id_funcionario;
+FROM funcionarios f
+INNER JOIN funcionarios s ON f.supervisor_id = s.id_funcionario;
 ```
 
 ---

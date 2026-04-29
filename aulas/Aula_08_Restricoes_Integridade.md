@@ -41,19 +41,25 @@ A `PRIMARY KEY` é a constraint mais fundamental. Ela combina automaticamente `N
 
 ```sql
 -- PK simples (uma coluna)
-CREATE TABLE departamento (
-    id_depto    INT         NOT NULL AUTO_INCREMENT,
-    nome        VARCHAR(60) NOT NULL,
-    CONSTRAINT pk_departamento PRIMARY KEY (id_depto)
+CREATE TABLE IF NOT EXISTS departamentos (
+    id_departamento  BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT,
+    nome             VARCHAR(255)     NOT NULL,
+    criado_em        DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em    DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deletado_em      DATETIME             NULL,
+    CONSTRAINT pk_departamento PRIMARY KEY (id_departamento)
 );
 
 -- PK composta (duas ou mais colunas)
-CREATE TABLE item_pedido (
-    id_pedido   INT NOT NULL,
-    id_produto  INT NOT NULL,
-    quantidade  INT NOT NULL,
-    CONSTRAINT pk_item_pedido PRIMARY KEY (id_pedido, id_produto)
-    -- Juntos, id_pedido + id_produto identificam unicamente cada item
+CREATE TABLE IF NOT EXISTS itens_pedidos (
+    pedido_id   BIGINT UNSIGNED  NOT NULL,
+    produto_id  BIGINT UNSIGNED  NOT NULL,
+    quantidade  INT UNSIGNED     NOT NULL,
+    criado_em   DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deletado_em DATETIME             NULL,
+    CONSTRAINT pk_item_pedido PRIMARY KEY (pedido_id, produto_id)
+    -- Juntos, pedido_id + produto_id identificam unicamente cada item
 );
 ```
 
@@ -64,15 +70,18 @@ CREATE TABLE item_pedido (
 A `FOREIGN KEY` implementa a integridade referencial: o valor na coluna FK deve existir como PK na tabela referenciada — ou ser `NULL` (caso a FK aceite nulos, o que indica que o relacionamento é opcional).
 
 ```sql
-CREATE TABLE funcionario (
-    id_func     INT         NOT NULL AUTO_INCREMENT,
-    nome        VARCHAR(100) NOT NULL,
-    id_depto    INT         NOT NULL,  -- FK obrigatória (NOT NULL)
-    CONSTRAINT pk_funcionario  PRIMARY KEY (id_func),
-    CONSTRAINT fk_func_depto   FOREIGN KEY (id_depto)
-        REFERENCES departamento (id_depto)
-        ON DELETE RESTRICT   -- Bloqueia exclusão se houver funcionários
-        ON UPDATE CASCADE    -- Propaga atualização da PK para a FK
+CREATE TABLE IF NOT EXISTS funcionarios (
+    id_funcionario   BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT,
+    nome             VARCHAR(255)     NOT NULL,
+    departamento_id  BIGINT UNSIGNED  NOT NULL,
+    criado_em        DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em    DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deletado_em      DATETIME             NULL,
+    CONSTRAINT pk_funcionario  PRIMARY KEY (id_funcionario),
+    CONSTRAINT fk_func_depto   FOREIGN KEY (departamento_id)
+        REFERENCES departamentos (id_departamento)
+        ON DELETE RESTRICT
+        ON UPDATE CASCADE
 );
 ```
 
@@ -85,11 +94,14 @@ As **ações referenciais** `ON DELETE` e `ON UPDATE` definem o que acontece qua
 A constraint `UNIQUE` garante que dois registros não possam ter o mesmo valor em uma coluna — diferente da PK, porém, ela aceita `NULL` (e em muitos SGBDs, múltiplos `NULL` são permitidos, pois NULL não é igual a NULL).
 
 ```sql
-CREATE TABLE cliente (
-    id_cliente  INT         NOT NULL AUTO_INCREMENT,
-    nome        VARCHAR(100) NOT NULL,
-    cpf         CHAR(11)    NOT NULL,
-    email       VARCHAR(150),
+CREATE TABLE IF NOT EXISTS clientes (
+    id_cliente    BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT,
+    nome          VARCHAR(255)     NOT NULL,
+    cpf           CHAR(11)         NOT NULL,
+    email         VARCHAR(255)         NULL,
+    criado_em     DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deletado_em   DATETIME             NULL,
     CONSTRAINT pk_cliente   PRIMARY KEY (id_cliente),
     CONSTRAINT uq_cpf       UNIQUE (cpf),
     CONSTRAINT uq_email     UNIQUE (email)
@@ -120,14 +132,17 @@ email   VARCHAR(150),            -- Email é opcional (pode ser NULL)
 A constraint `CHECK` permite definir uma condição booleana que cada linha deve satisfazer. É a forma de implementar regras de domínio diretamente no banco.
 
 ```sql
-CREATE TABLE produto (
-    id_produto  INT             NOT NULL AUTO_INCREMENT,
-    nome        VARCHAR(100)    NOT NULL,
-    preco       DECIMAL(10,2)   NOT NULL,
-    estoque     INT             NOT NULL DEFAULT 0,
-    CONSTRAINT pk_produto       PRIMARY KEY (id_produto),
-    CONSTRAINT chk_preco        CHECK (preco > 0),           -- Preço deve ser positivo
-    CONSTRAINT chk_estoque      CHECK (estoque >= 0)         -- Estoque não pode ser negativo
+CREATE TABLE IF NOT EXISTS produtos (
+    id_produto    BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT,
+    nome          VARCHAR(255)     NOT NULL,
+    preco         DECIMAL(10, 2)   NOT NULL,
+    estoque       INT              NOT NULL DEFAULT 0,
+    criado_em     DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deletado_em   DATETIME             NULL,
+    CONSTRAINT pk_produto   PRIMARY KEY (id_produto),
+    CONSTRAINT chk_preco    CHECK (preco > 0),
+    CONSTRAINT chk_estoque  CHECK (estoque >= 0)
 );
 ```
 
@@ -138,9 +153,9 @@ CREATE TABLE produto (
 O `DEFAULT` não é tecnicamente uma constraint de integridade, mas complementa as demais ao definir um valor automático para uma coluna quando nenhum valor é informado no `INSERT`. Isso evita `NULL` indesejados em colunas que têm um valor padrão razoável.
 
 ```sql
-status      VARCHAR(20)  NOT NULL DEFAULT 'ATIVO',
-data_criacao DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-ativo       TINYINT(1)   NOT NULL DEFAULT 1
+status        VARCHAR(20)  NOT NULL DEFAULT 'ativo',
+criado_em     DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ativo         TINYINT(1)   NOT NULL DEFAULT 1
 ```
 
 ---
@@ -148,23 +163,26 @@ ativo       TINYINT(1)   NOT NULL DEFAULT 1
 ## 9. Exemplo Completo
 
 ```sql
-CREATE TABLE matricula (
-    id_matricula    INT         NOT NULL AUTO_INCREMENT,
-    id_aluno        INT         NOT NULL,
-    id_disciplina   INT         NOT NULL,
-    semestre        CHAR(6)     NOT NULL,         -- Ex: '2026_1'
-    nota_final      DECIMAL(4,2),                 -- Pode ser NULL se ainda não lançada
-    situacao        VARCHAR(20) NOT NULL DEFAULT 'CURSANDO',
-    data_matricula  DATE        NOT NULL DEFAULT (CURRENT_DATE),
-    
-    CONSTRAINT pk_matricula     PRIMARY KEY (id_matricula),
-    CONSTRAINT uq_mat           UNIQUE (id_aluno, id_disciplina, semestre),
-    CONSTRAINT fk_mat_aluno     FOREIGN KEY (id_aluno)
-                                    REFERENCES aluno(id_aluno) ON DELETE RESTRICT,
-    CONSTRAINT fk_mat_disc      FOREIGN KEY (id_disciplina)
-                                    REFERENCES disciplina(id_disciplina) ON DELETE RESTRICT,
-    CONSTRAINT chk_nota         CHECK (nota_final BETWEEN 0 AND 10),
-    CONSTRAINT chk_situacao     CHECK (situacao IN ('CURSANDO','APROVADO','REPROVADO','TRANCADO'))
+CREATE TABLE IF NOT EXISTS matriculas (
+    id_matricula    BIGINT UNSIGNED  NOT NULL AUTO_INCREMENT,
+    aluno_id        BIGINT UNSIGNED  NOT NULL,
+    disciplina_id   BIGINT UNSIGNED  NOT NULL,
+    semestre        CHAR(6)          NOT NULL,
+    nota_final      DECIMAL(4, 2)        NULL,
+    situacao        VARCHAR(20)      NOT NULL DEFAULT 'cursando',
+    data_matricula  DATE             NOT NULL DEFAULT (CURRENT_DATE),
+    criado_em       DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    atualizado_em   DATETIME         NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deletado_em     DATETIME             NULL,
+
+    CONSTRAINT pk_matricula  PRIMARY KEY (id_matricula),
+    CONSTRAINT uq_mat        UNIQUE (aluno_id, disciplina_id, semestre),
+    CONSTRAINT fk_mat_aluno  FOREIGN KEY (aluno_id)
+                                 REFERENCES alunos (id_aluno) ON DELETE RESTRICT,
+    CONSTRAINT fk_mat_disc   FOREIGN KEY (disciplina_id)
+                                 REFERENCES disciplinas (id_disciplina) ON DELETE RESTRICT,
+    CONSTRAINT chk_nota      CHECK (nota_final BETWEEN 0 AND 10),
+    CONSTRAINT chk_situacao  CHECK (situacao IN ('cursando', 'aprovado', 'reprovado', 'trancado'))
 );
 ```
 
